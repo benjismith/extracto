@@ -275,6 +275,28 @@ function getPageURL() {
 }
 
 /**
+ * Checks if an element starts with a <span> tag.
+ * Ignores any leading whitespace or text nodes.
+ * @param {Element} el - The DOM element to check.
+ * @returns {boolean} - True if the element starts with a <span>, else false.
+ */
+function elementStartsWithSpan(el) {
+  const childNodes = el.childNodes;
+  for (let node of childNodes) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      if (node.textContent.trim() === '') {
+        continue; // Ignore empty text nodes
+      } else {
+        return false; // Starts with a text node that isn't empty
+      }
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      return node.tagName.toLowerCase() === 'span';
+    }
+  }
+  return false;
+}
+
+/**
  * Selects an element: highlights it using CSS classes and stores its reference.
  * @param {Element} element - The element to select.
  */
@@ -380,6 +402,7 @@ function clearAllSelections() {
  * Formats <li> elements with appropriate prefixes.
  * Encloses blockquote texts in curly quotes.
  * Inserts the current page URL as the first line of the exported text.
+ * Inserts "***" before paragraphs that start with a <span> to indicate a section break.
  * @returns {string} - The combined text.
  */
 function getSelectedTextForClipboard() {
@@ -413,22 +436,29 @@ function getSelectedTextForClipboard() {
     combinedText += pageURL + "\n\n";
   }
 
-  // Map elements to their processed text
+  // Map elements to their processed text, inserting "***" where necessary
   combinedText += filteredElements.map(el => {
     const tag = el.tagName.toLowerCase();
+    let text = '';
 
     if (tag === 'hr') {
-      return '***';
+      text = '***';
     } else if (tag === 'li') {
-      return getListItemPrefix(el) + getElementText(el);
+      text = getListItemPrefix(el) + getElementText(el);
     } else if (tag.startsWith('h')) {
-      return getElementText(el); // Removed .toUpperCase()
+      text = getElementText(el); // Removed .toUpperCase()
     } else if (tag === 'blockquote') {
-      return processBlockquoteText(getElementText(el));
+      text = processBlockquoteText(getElementText(el));
     } else {
-      // For <p> and <div>, return the processed text with <br> as newlines
-      return getElementText(el);
+      // For <p> and <div>, check if it starts with a <span>
+      if (elementStartsWithSpan(el)) {
+        text = '***\n\n' + getElementText(el);
+      } else {
+        text = getElementText(el);
+      }
     }
+
+    return text;
   }).join("\n\n");
 
   return combinedText;
