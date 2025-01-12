@@ -1,0 +1,53 @@
+<!-- popup.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Extracto</title>
+    <style>
+        /* Styles for buttons */
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Style for selection count */
+        #selectionCount {
+            margin-top: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Style for temporary status messages */
+        #statusMessage {
+            display: none; /* Hidden by default */
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: center;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Success message */
+        #statusMessage.success {
+            color: green;
+        }
+
+        /* Error message */
+        #statusMessage.error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <button id="toggleSelectionBtn" aria-label="Toggle Selection Mode">Activate Selection Mode</button>
+    <button id="exportToClipboardBtn" aria-label="Export Selected Text to Clipboard">Export to Clipboard</button>
+    <button id="openArchivedPageBtn" aria-label="Open Archived Version of Current Page">Open Archived Page</button>
+    <div id="selectionCount">Selected: 0</div>
+    <div id="statusMessage"></div> <!-- Element for temporary messages -->
+    <script src="popup.js"></script>
+</body>
+</html>
