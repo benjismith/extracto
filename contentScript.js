@@ -64,6 +64,9 @@ function toggleSelectionMode() {
     // Remove highlights when selection mode is deactivated
     clearAllSelections();
   }
+
+  // Send an update message to the popup about the new state
+  chrome.runtime.sendMessage({ type: "UPDATE_SELECTION_MODE", active: selectionModeActive });
 }
 
 /**
@@ -529,6 +532,19 @@ function observeDOMChanges() {
   observer.observe(document.body, { childList: true, subtree: true });
 }
 
-// Initialize Mutation Observer and add highlight styles when the content script loads
-addHighlightStyles();
-observeDOMChanges();
+/**
+ * Initializes the content script by adding styles and setting up observers.
+ * Automatically activates selection mode if on archive.is domain, with a non-http path.
+ */
+function initialize() {
+  addHighlightStyles();
+  observeDOMChanges();
+
+  // Automatically activate selection mode if on archive.is domain, with a non-http path
+  if (window.location.hostname === 'archive.is' && !window.location.pathname.startsWith('/http')) {
+    toggleSelectionMode();
+  }
+}
+
+// Call initialize when the content script loads
+initialize();

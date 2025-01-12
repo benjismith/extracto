@@ -97,17 +97,27 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('selectionCount').textContent = `Selected: ${count}`;
     }
 
-    // Request the initial selection count upon loading the popup
+    // Request the initial selection count and selection mode state upon loading the popup
     chrome.runtime.sendMessage({ type: 'GET_SELECTION_COUNT' }, response => {
         if (response && response.count !== undefined) {
             updateSelectionCount(response.count);
         }
     });
 
-    // Listen for updates to the selection count from the content script
+    chrome.runtime.sendMessage({ type: 'GET_SELECTION_MODE' }, response => {
+        if (response && response.active !== undefined) {
+            const toggleButton = document.getElementById('toggleSelectionBtn');
+            toggleButton.textContent = response.active ? 'Deactivate Selection Mode' : 'Activate Selection Mode';
+        }
+    });
+
+    // Listen for updates to the selection count and selection mode from the content script
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (message.type === 'UPDATE_SELECTION_COUNT') {
             updateSelectionCount(message.count);
+        } else if (message.type === 'UPDATE_SELECTION_MODE') {
+            const toggleButton = document.getElementById('toggleSelectionBtn');
+            toggleButton.textContent = message.active ? 'Deactivate Selection Mode' : 'Activate Selection Mode';
         }
     });
 
