@@ -1,7 +1,5 @@
 // contentScript.js
 
-console.log("Extracto content script loaded."); // Verify script injection
-
 let selectionModeActive = false;
 let selectedElements = [];
 let selectableElements = []; // Ordered list of selectable elements
@@ -54,14 +52,12 @@ function toggleSelectionMode() {
   selectionModeActive = !selectionModeActive;
 
   if (selectionModeActive) {
-    console.log("Selection mode activated.");
     // Build the ordered list of selectable elements
     buildSelectableElementsList();
     document.addEventListener("click", handleElementClick, true);
     // Change cursor to indicate selection mode
     document.body.style.cursor = "crosshair";
   } else {
-    console.log("Selection mode deactivated.");
     document.removeEventListener("click", handleElementClick, true);
     // Reset cursor
     document.body.style.cursor = "default";
@@ -90,8 +86,6 @@ function buildSelectableElementsList() {
 
   // Use querySelectorAll to get all selectable elements in DOM order
   selectableElements = Array.from(document.querySelectorAll(selectableTags.join(',')));
-
-  console.log(`Found ${selectableElements.length} selectable elements.`);
 }
 
 /**
@@ -145,7 +139,6 @@ function handleElementClick(event) {
 
     if (currentIndex === -1) {
       // Element not found in the list (shouldn't happen)
-      console.warn("Selectable element not found in the list.");
       return;
     }
 
@@ -153,8 +146,6 @@ function handleElementClick(event) {
       // Shift-click detected, perform range selection
       const start = Math.min(lastSelectedIndex, currentIndex);
       const end = Math.max(lastSelectedIndex, currentIndex);
-
-      console.log(`Selecting range from index ${start} to ${end}.`);
 
       for (let i = start; i <= end; i++) {
         const element = selectableElements[i];
@@ -311,7 +302,6 @@ function selectElement(element) {
 
   // Store the element reference
   selectedElements.push(element);
-  console.log("Selected element:", element.tagName, element.textContent.trim());
 
   // Send updated selection count
   sendSelectionCount();
@@ -346,8 +336,6 @@ function deselectElement(element) {
   // Remove from selected elements
   selectedElements = selectedElements.filter(el => el !== element);
 
-  console.log("Deselected element:", element.tagName, element.textContent.trim());
-
   // Send updated selection count
   sendSelectionCount();
 }
@@ -380,7 +368,6 @@ function clearAllSelections() {
   });
   selectedElements = [];
   lastSelectedIndex = null;
-  console.log("All selections cleared.");
 
   // Send updated selection count
   sendSelectionCount();
@@ -444,9 +431,6 @@ function getSelectedTextForClipboard() {
     }
   }).join("\n\n");
 
-  // Log the combined text for debugging
-  console.log("Combined Text for Export to Clipboard:\n", combinedText);
-
   return combinedText;
 }
 
@@ -469,7 +453,6 @@ function exportSelectedTextToClipboard(callback) {
     clearAllSelections();
     callback('Text copied to clipboard successfully!');
   }).catch(err => {
-    console.error("Failed to copy text to the clipboard:", err);
     callback('Failed to copy text to the clipboard.');
   });
 }
@@ -478,7 +461,6 @@ function exportSelectedTextToClipboard(callback) {
  * Handles messages from popup.js and other parts of the extension.
  */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("Received message:", message);
   if (message.type === "TOGGLE_SELECTION_MODE") {
     toggleSelectionMode();
     sendResponse({ status: "Selection mode toggled", active: selectionModeActive });
@@ -515,8 +497,6 @@ function observeDOMChanges() {
 
   // Start observing the document body for changes
   observer.observe(document.body, { childList: true, subtree: true });
-
-  console.log("MutationObserver has been set up to monitor DOM changes.");
 }
 
 // Initialize Mutation Observer and add highlight styles when the content script loads

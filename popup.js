@@ -11,24 +11,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.tabs.sendMessage(activeTab.id, { type: 'TOGGLE_SELECTION_MODE' }, response => {
                     if (chrome.runtime.lastError) {
                         // Handle errors (e.g., content script not injected)
-                        console.error("Error sending message:", chrome.runtime.lastError.message);
                         showTemporaryMessage('Failed to toggle selection mode.', true);
                         return;
                     }
                     if (response && response.status) {
-                        console.log("Response from content script:", response.status);
                         // Update button text based on selection mode state
                         const toggleButton = document.getElementById('toggleSelectionBtn');
                         toggleButton.textContent = response.active ? 'Deactivate Selection Mode' : 'Activate Selection Mode';
                         // Show a temporary success message in the UI
                         showTemporaryMessage('Selection mode toggled successfully!');
                     } else {
-                        console.warn('No response received for TOGGLE_SELECTION_MODE message.');
                         showTemporaryMessage('Failed to toggle selection mode.', true);
                     }
                 });
             } else {
-                console.error("No active tab found.");
                 showTemporaryMessage('No active tab to send message.', true);
             }
         });
@@ -43,7 +39,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.tabs.sendMessage(activeTab.id, { type: 'EXPORT_TO_CLIPBOARD' }, response => {
                     if (chrome.runtime.lastError) {
                         // Handle errors (e.g., content script not injected)
-                        console.error("Error sending message:", chrome.runtime.lastError.message);
                         showTemporaryMessage('Failed to export to clipboard.', true);
                         return;
                     }
@@ -55,21 +50,18 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                         // Perform the clipboard write operation
                         navigator.clipboard.writeText(textToCopy).then(() => {
-                            console.log("Text copied to clipboard successfully.");
+                            // Show a temporary success message in the UI
                             showTemporaryMessage('Exported to clipboard successfully!');
                             // Optionally, clear selections after copying
                             chrome.tabs.sendMessage(activeTab.id, { type: 'CLEAR_SELECTIONS' }, () => {});
                         }).catch(err => {
-                            console.error("Failed to copy text to the clipboard:", err);
                             showTemporaryMessage('Failed to copy text to the clipboard.', true);
                         });
                     } else {
-                        console.warn('No text received for EXPORT_TO_CLIPBOARD message.');
                         showTemporaryMessage('Failed to export to clipboard.', true);
                     }
                 });
             } else {
-                console.error("No active tab found.");
                 showTemporaryMessage('No active tab to send message.', true);
             }
         });
@@ -92,11 +84,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Navigate to the archived URL in the same tab
                     chrome.tabs.update(activeTab.id, { url: archivedURL });
                 } catch (error) {
-                    console.error("Invalid URL:", error);
                     showTemporaryMessage('Failed to open archived page. Invalid URL.', true);
                 }
             } else {
-                console.error("No active tab found.");
                 showTemporaryMessage('No active tab to open archived page.', true);
             }
         });
